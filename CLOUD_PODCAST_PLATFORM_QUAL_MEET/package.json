@@ -1,0 +1,12 @@
+{
+  "name": "cloud-podcast-platform-qual-meet",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "auth-service",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "echo \"Run services individually\""
+  }
+}
