@@ -5,7 +5,8 @@
     "frontend",
     "auth-service",
     "shared",
-    "api-gateway"
+    "api-gateway",
+    "room-service"
   ],
   "scripts": {
     "dev": "echo \"Run services individually\""

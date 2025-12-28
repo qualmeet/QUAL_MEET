@@ -24,8 +24,25 @@ const authProxyOptions: Options = {
 
 export const authProxy = createProxyMiddleware(authProxyOptions);
 
+
+
 //room-service proxy - private route(jwt required)
-// export const roomProxy=createProxyMiddleware({
-//     target:"https://localhost:4002",
-//     changeOrigin:true,
-// })
+export const roomProxy=createProxyMiddleware({
+    target:"http://localhost:4002/rooms",
+    changeOrigin:true,
+
+    on:{
+      proxyReq:(proxyReq:ClientRequest,req:IncomingMessage)=>{
+        const body=(req as any).body;
+
+        if(!body)
+            return;
+
+        const bodyData=JSON.stringify(body);
+
+        proxyReq.setHeader("Content-Type","application/json");
+        proxyReq.setHeader("Content-Length",Buffer.byteLength(bodyData));
+        proxyReq.write(bodyData);
+      },
+    },
+});
