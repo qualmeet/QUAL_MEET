@@ -1,6 +1,6 @@
 import express from "express";
 import { authenticate } from "./middlewares/auth";
-import { authProxy } from "./routes/proxy";
+import { authProxy,roomProxy } from "./routes/proxy";
 
 const app = express();
 
@@ -25,7 +25,7 @@ app.use("/api/auth",authProxy);
  * Protected routes
  * JWT required before forwarding
  */
-//app.use("/api/rooms",authenticate,roomProxy);
+app.use("/api/rooms",authenticate,roomProxy);
 
 
 export default app;
