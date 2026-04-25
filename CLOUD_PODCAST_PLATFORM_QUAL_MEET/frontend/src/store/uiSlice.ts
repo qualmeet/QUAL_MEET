@@ -31,5 +31,11 @@ const uiSlice=createSlice({
     }
 });
 
-export const {setMicMuted,setCamOff,setBanner,clearBanner}=uiSlice.actions;
+export const {
+    setMicMuted,
+    setCamOff,
+    setBanner,
+    clearBanner
+}=uiSlice.actions;
+
 export default uiSlice.reducer;

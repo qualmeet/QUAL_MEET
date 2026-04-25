@@ -9,6 +9,8 @@
       "@shared/*": ["shared/*"]
     },
 
+    "ignoreDeprecations": "6.0",
+
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true

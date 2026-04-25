@@ -6,8 +6,34 @@ import AppPage from "./pages/App/AppPage";
 import RoomPage from "./pages/App/Room/RoomPage";
 import { PreJoinPage } from "./pages/App/PreJoin";
 import LobbyPage from "./pages/App/Lobby/LobbyPage";
+import { RecordingsPage } from "./pages/App/Recordings";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "./store";
+import { useEffect } from "react";
+import { getMe } from "./api/auth";
+import { clearUser, setUser } from "./store/authSlice";
+import { setAccessTokenExpiry, startExpiryTimer } from "./api/client";
 
 export default function App() {
+
+    const dispatch=useDispatch<AppDispatch>();
+
+    useEffect(()=>{
+        async function initAuth(){
+            try{
+                const res=await getMe();
+                dispatch(setUser(res.user));
+                setAccessTokenExpiry(res.accessTokenExpiry);
+
+                startExpiryTimer();
+            }
+            catch{
+                dispatch(clearUser());
+            }
+        }
+        initAuth();
+    },[]);
+
     return (
         <BrowserRouter>
             <Routes>
@@ -19,6 +45,7 @@ export default function App() {
                     <Route index element={<LobbyPage />} />
                     <Route path="room/:roomId" element={<RoomPage />} />
                     <Route path="room/:roomId/pre" element={<PreJoinPage />} />
+                    <Route path="recordings" element={<RecordingsPage/>} />
                 </Route>
 
 

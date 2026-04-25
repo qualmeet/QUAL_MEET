@@ -1,11 +1,14 @@
 import { useDispatch } from "react-redux";
-import { clearUser } from "../../store/authSlice";
+import { clearUser } from "@/store/authSlice";
+import type { AppDispatch } from "@/store";
+import { logoutUser } from "@/controllers/authController";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const dispatch = useDispatch();
 
-  function handleLogout() {
-    dispatch(clearUser());
+  const dispatch = useDispatch<AppDispatch>();
+  
+  async function handleLogout(){
+    await logoutUser(dispatch);
   }
 
   return (
@@ -17,7 +20,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="flex-1 p-6">
+      <main className="flex-1 p-6 bg-[#050505]">
         {children}
       </main>
     </div>

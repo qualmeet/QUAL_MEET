@@ -1,8 +1,21 @@
-import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
-import type { RootState } from "../../store";
+import { Link,useNavigate } from "react-router-dom";
+import { useSelector,useDispatch } from "react-redux";
+import type { RootState } from "@/store";
 import { Button } from "../ui/Button";
+import { logoutUser } from "@/controllers/authController";
+import type { AppDispatch } from "@/store";
+
+
 export default function Navbar() {
+
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate=useNavigate();
+
+  async function handleLogout(){
+    await logoutUser(dispatch);
+    navigate("/");
+  }
+  
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated
   );
@@ -26,10 +39,13 @@ export default function Navbar() {
         </div>
       ) : (
         <div className="flex gap-4 items-center">
-          <Link to="/app" className="text-sm text-gray-300 hover:text-white">
-            Dashboard
-          </Link>
-          <Button variant="outline">Logout</Button>
+          <Button 
+            type="button"
+            variant="outline"
+            onClick={handleLogout}
+          >
+            Logout
+          </Button>
         </div>
       )}
     </nav>

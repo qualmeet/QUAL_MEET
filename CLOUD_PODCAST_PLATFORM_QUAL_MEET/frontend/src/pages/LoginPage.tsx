@@ -1,8 +1,8 @@
 import { Navigate } from "react-router-dom";
 import { useSelector} from "react-redux";
 import { Link } from "react-router-dom";
-import type { RootState } from "../store";
-import LoginForm from "../components/LoginForm";
+import type { RootState } from "@/store";
+import LoginForm from "@/components/LoginForm";
 
 export default function LoginPage(){
     const isAuthenticated=useSelector(
@@ -16,8 +16,8 @@ export default function LoginPage(){
     return (
         <div className="min-h-screen bg-[#050505] flex items-center justify-center p-6 relative overflow-hidden font-sans">
       {/* Background Decorative "Glow" */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-white/[0.03] rounded-full blur-[120px]" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-white/[0.02] rounded-full blur-[100px]" />
+      <div className="absolute top-[-10%] left-[-10%] w-125 h-125 bg-white/3 rounded-full blur-[120px]" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-100 h-100 bg-white/2 rounded-full blur-[100px]" />
 
       <div className="relative z-10 w-full max-w-md">
         {/* Logo/Brand Section */}

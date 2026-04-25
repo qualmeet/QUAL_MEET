@@ -3,11 +3,12 @@ import jwt from "jsonwebtoken";
 import {prisma} from "../db/prisma";
 import { SignupRequestDTO,LoginRequestDTO } from "../dto/auth.dto";
 import { UserAlreadyExistsError } from "../errors/AuthErrors";
-import { getPrivateKey } from "../utils/jwt";
+import { getPrivateKey,getPublicKey } from "../utils/jwt";
 import { AppError } from "../errors/AppError";
+import { JwtPayload } from "@qualmeet/shared";
+import { id } from "zod/v4/locales";
 
 const SALT_ROUNDS=10;
-const JWT_EXPIRES_IN="24h";
 
 
 //signup business logic
@@ -75,10 +76,77 @@ export async function loginUser(data:LoginRequestDTO){
     };
 
     //sign jwt (RS256)
-    const token=jwt.sign(payload,getPrivateKey(),{
+    const accessToken=jwt.sign(payload,getPrivateKey(),{
         algorithm:"RS256",
-        expiresIn:JWT_EXPIRES_IN,
+        expiresIn:"15m",
     });
 
-    return {token,user};
+    const refreshToken=jwt.sign(payload,getPrivateKey(),{
+        algorithm:"RS256",
+        expiresIn:"7d",
+    });
+
+    return {
+        accessToken,
+        refreshToken,
+        user
+    };
+}
+
+
+export async function refreshAccessToken(refreshToken:string){
+    try{
+
+        //verifying refresh token from cookie
+        const decoded=jwt.verify(refreshToken,getPublicKey(),{
+            algorithms:["RS256"],
+        }) as JwtPayload;
+
+        //create jwt payload
+        const payload={
+            userId:decoded.userId,
+            email:decoded.email,
+            fullName:decoded.fullName,
+        };
+
+        //creating new access token
+        const newAccessToken=jwt.sign(payload,getPrivateKey(),{
+            algorithm:"RS256",
+            expiresIn:"15m",
+        });
+
+        return{
+            accessToken:newAccessToken,
+        };
+    }
+
+    catch(error:any){
+        if(error.name==="TokenExpiredError"){
+            throw new AppError("REFRESH_TOKEN_EXPIRED",401);
+        }
+        throw new AppError("INVALID_REFRESH_TOKEN",401);
+    }
+}
+
+type JwtPayloadWithExp=JwtPayload & {exp:number};
+export async function getCurrentUser(accessToken:string){
+    try{
+        const decoded=jwt.verify(accessToken,getPublicKey(),{
+            algorithms:["RS256"],
+        }) as JwtPayloadWithExp;
+
+        return {
+            id:decoded.userId,
+            email:decoded.email,
+            fullName:decoded.fullName,
+            exp:decoded.exp,  
+        };
+
+    }
+    catch(error:any){
+        if(error.name==="TokenExpiredError"){
+            throw new AppError("TOKEN_EXPIRED",401);
+        }
+        throw new AppError("INVALID_TOKEN",401);
+    }
 }

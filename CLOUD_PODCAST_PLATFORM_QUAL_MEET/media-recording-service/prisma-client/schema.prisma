@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../prisma-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model RoomRecording {
+  id           String   @id @default(uuid())
+  roomId       String
+  userId       String
+  finalRoomUrl String
+  createdAt    DateTime @default(now())
+
+  @@unique([roomId, userId])
+  @@index([userId])
+  @@map("room_recordings")
+}
+
+model Recording {
+  id        String          @id @default(uuid())
+  roomId    String
+  userId    String
+  status    RecordingStatus @default(RECORDING)
+  createdAt DateTime        @default(now())
+  finalUrl  String?
+
+  chunks RecordingChunk[]
+
+  @@map("recordings")
+}
+
+model RecordingChunk {
+  id          String  @id @default(uuid())
+  recordingId String
+  chunkIndex  Int
+  uploaded    Boolean @default(false)
+  fileUrl     String?
+
+  recording Recording @relation(fields: [recordingId], references: [id])
+
+  @@unique([recordingId, chunkIndex])
+  @@map("recording_chunks")
+}
+
+enum RecordingStatus {
+  RECORDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}

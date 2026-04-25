@@ -1,5 +1,6 @@
-import { apiRequest,setAuthToken,clearAuthToken } from "./client";
-import type { LoginResponse,SignupResponse } from "@qualmeet/shared";
+import { apiRequest, getCSRFToken} from "./client";
+import type { LoginResponse,SignupResponse,UserDTO} from "@qualmeet/shared";
+const API_BASE_URL=import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000";
 
 
 interface SignupInput{
@@ -11,6 +12,11 @@ interface SignupInput{
 interface LoginInput{
     email:string;
     password:string;
+}
+
+interface MeResponse{
+    user:UserDTO;
+    accessTokenExpiry:number;
 }
 
 
@@ -27,6 +33,41 @@ export async function login(input:LoginInput):Promise<LoginResponse>{
         body:JSON.stringify(input)
     });
 
-    setAuthToken(res.token);
     return res;
 }
+
+export async function logout():Promise<{success:boolean}>{
+    console.log("logout step3");
+    return apiRequest<{success:boolean}>("/api/auth/logout",{
+        method:"POST",
+    });
+}
+
+export async function getMe():Promise<MeResponse>{
+    return apiRequest<MeResponse>("/api/auth/me",{
+        method:"GET",
+    });
+}
+
+export async function refreshToken():Promise<{success:boolean; accessTokenExpiry:number}>{
+    
+    const csrfToken=getCSRFToken();
+    
+    const res=await fetch(`${API_BASE_URL}/api/auth/refresh`,{
+        method:"POST",
+        credentials:"include",
+        headers:{
+            "Content-Type":"application/json",
+            ...(csrfToken ? {"x-csrf-token":csrfToken} : {})
+        }
+    });
+
+    if(!res.ok){
+        throw new Error("Refresh failed");
+    }
+
+    return res.json();
+}
+
+
+

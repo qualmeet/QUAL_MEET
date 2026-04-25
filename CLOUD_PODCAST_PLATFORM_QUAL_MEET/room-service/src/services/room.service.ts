@@ -261,5 +261,6 @@ export async function authorizeRoomAccess(roomId:string,userId:string){
     roomId,
     userId,
     role:participant.role,
+    maxParticipants:room.maxParticipants,
   }
 }

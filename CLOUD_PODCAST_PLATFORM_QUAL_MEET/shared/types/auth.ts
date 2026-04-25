@@ -19,8 +19,8 @@ export interface SignupResponse {
  * Auth login response
  */
 export interface LoginResponse {
-  token: string;
   user: UserDTO;
+  accessTokenExpiry:number; // in ms
 }
 
 /**
