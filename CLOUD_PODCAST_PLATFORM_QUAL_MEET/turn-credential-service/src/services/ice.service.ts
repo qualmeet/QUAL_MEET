@@ -35,7 +35,14 @@ export async function getIceServerForUser(roomId:string,userId:string){
 
     return {
         iceServers:[
-            { urls:[ STUN_URL ] },
+            {   urls:[
+                    "stun:stun.l.google.com:19302",
+                    "stun:stun.12connect.com:3478",
+                    "stun:stun.12voip.com:3478",
+                    "stun:stun.2talk.co.nz:3478", 
+                    STUN_URL                // coturn server -> STUN+TURN
+                ] 
+            },
             {
                 urls:[ TURN_UDP_URL, TURN_TCP_URL ],
                 username:turnCreds.username,

@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import type { RootState } from "frontend/src/store";
+import type { RootState } from "@/store";
 import AppLayout from "./AppLayout";
 import { Navigate } from "react-router-dom";
 import { Outlet } from "react-router-dom";

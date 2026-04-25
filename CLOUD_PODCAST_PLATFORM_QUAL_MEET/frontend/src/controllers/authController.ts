@@ -1,8 +1,9 @@
-import {login,signup} from "../api/auth";
-import {setUser,clearUser} from "../store/authSlice";
-import {setPhase} from "../store/appSlice";
-import { setBanner,clearBanner } from "../store/uiSlice";
-import type {AppDispatch} from "../store";
+import {login,signup,logout} from "@/api/auth";
+import {setUser,clearUser} from "@/store/authSlice";
+import {setPhase} from "@/store/appSlice";
+import { setBanner,clearBanner } from "@/store/uiSlice";
+import type {AppDispatch} from "@/store";
+import { clearAccessTokenExpiry, setAccessTokenExpiry, startExpiryTimer } from "@/api/client";
 
 
 export async function signupUser(
@@ -50,6 +51,10 @@ export async function loginAndIntializeApp(
         //4. Moving phase to Authenticated 
         dispatch(setPhase("AUTHENTICATED"));
 
+        setAccessTokenExpiry(res.accessTokenExpiry);
+
+        startExpiryTimer();
+
         return true;
     }
     catch(error){
@@ -63,4 +68,21 @@ export async function loginAndIntializeApp(
 
          return false;
     }
+}
+
+
+
+export async function logoutUser(dispatch:AppDispatch):Promise<void>{
+    try{
+
+        await logout();
+        clearAccessTokenExpiry();
+    }
+    catch(error){
+        clearAccessTokenExpiry();
+        console.log("logout failed",error);
+    }
+
+    dispatch(clearUser());
+    dispatch(setPhase("IDLE"));
 }

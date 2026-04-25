@@ -6,6 +6,11 @@ interface ControleBarProps{
     onLeave:()=>void;
     isScreenSharing:boolean;
     onToggleScreenShare:()=>void;
+    disableScreenShare?:boolean;
+    isRecording: boolean;
+    onStartRecording: () => void;
+    onStopRecording: () => void;
+    isHost:boolean;
 }
 
 
@@ -16,7 +21,12 @@ export function ControleBar({
     onToggleCam,
     onLeave,
     isScreenSharing,
-    onToggleScreenShare
+    onToggleScreenShare,
+    disableScreenShare,
+    isRecording,
+    onStartRecording,
+    onStopRecording,
+    isHost
 }:ControleBarProps){
 
     return(
@@ -46,13 +56,23 @@ export function ControleBar({
 
                 <button
                     onClick={onToggleScreenShare}
+                    disabled={disableScreenShare}
                     className={`px-4 py-2 rounded-xl border text-xs font-bold uppercase tracking-widest ${
                     isScreenSharing
                     ? "bg-blue-500/20 border-blue-500 text-blue-400"
                     : "bg-white/5 border-white/10 text-gray-300"
-                }`}
+                    } ${disableScreenShare ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                     {isScreenSharing ? "Stop Share" : "Share Screen"}
+                </button>
+
+                <button
+                    onClick={isRecording ? onStopRecording : onStartRecording}
+                    disabled={!isHost}
+                    className={`px-4 py-2 rounded-xl border text-xs font-bold text-blue-500
+                        ${isHost ? "text-blue-500" : "text-gray-500 opacity-50 cursor-not-allowed"} `}
+                >
+                    {isRecording ? "Stop Recording" : "Start Recording"}
                 </button>
 
                 <button

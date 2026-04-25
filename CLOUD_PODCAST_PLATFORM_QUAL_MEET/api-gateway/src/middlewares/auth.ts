@@ -5,32 +5,14 @@ import { JwtPayload } from "@qualmeet/shared";
 
 export function authenticate(req:Request,res:Response,next:NextFunction){
 
-    const authHeader=req.headers.authorization;
 
-    if(!authHeader){
+    const token = req.cookies?.access_token;
+
+    if(!token){
         return res.status(401).json({
-            error:"Authorization header missing",
+            error:"Access token missing",
         });
     }
-
-    const [scheme,token]=authHeader.split(" ");
-
-    if(scheme!=="Bearer" || !token){
-        return res.status(401).json(
-            {
-                error:"Invalid Authorization header format",
-            }
-        )
-    }
-
-
-    // const token = req.cookies?.access_token;
-
-    // if(!token){
-    //     return res.status(401).json({
-    //         error:"Authorization token missing",
-    //     });
-    // }
 
     try{
         //decodes the payload (id,email,fullName)
@@ -51,10 +33,12 @@ export function authenticate(req:Request,res:Response,next:NextFunction){
 
         next();
     }
-    catch(error:unknown){
-        return res.status(401).json({
-            error:"Invalid or expired token",
-        });
+    catch(error:any){
+         if (error.name === "TokenExpiredError") {
+            return res.status(401).json({ error: "TOKEN_EXPIRED" });
+        }
+
+        return res.status(401).json({ error: "INVALID_TOKEN" });
     }
 
 }

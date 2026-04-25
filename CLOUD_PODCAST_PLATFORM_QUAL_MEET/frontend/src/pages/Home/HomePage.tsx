@@ -1,4 +1,4 @@
-import PublicLayout from "../../components/layout/PublicLayout";
+import PublicLayout from "@/components/layout/PublicLayout";
 import HeroSection from "./HeroSection";
 import PreviewSection from "./PreviewSection";
 

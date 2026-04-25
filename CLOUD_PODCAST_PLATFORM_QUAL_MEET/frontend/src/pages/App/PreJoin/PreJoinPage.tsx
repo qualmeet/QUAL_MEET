@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getRoom, joinRoom } from "../../../api/rooms";
+import { getRoom, joinRoom } from "@/api/rooms";
 
 type PreJoinState = "LOADING" | "READY" | "ERROR";
 

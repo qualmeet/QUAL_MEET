@@ -1,6 +1,8 @@
 import { useEffect,useState,useRef,Dispatch,SetStateAction } from "react";
 import {io,Socket} from "socket.io-client";
 import { RoomRole,JoinSuccessPayload, RoomParticipant } from "../types";
+import {handleTokenRefresh} from "@/api/client";
+import { clearAccessTokenExpiry } from "@/api/client";
 
 type AuthState="PENDING" | "AUTHORIZED" | "REJECTED";
 
@@ -18,25 +20,23 @@ roomId: string | null,
 setParticipants:Dispatch<SetStateAction<RoomParticipant[]>>
 ):UseRoomSocketResult{
 
+    const [socketState,setSocketState]=useState<Socket |null>(null);
     const socketRef=useRef<Socket | null>(null);
     const [authState,setAuthState]=useState<AuthState>("PENDING");
     const [role,setRole]=useState<RoomRole | null>(null);
+    const [messages,setMessages]=useState<ChatMessage[]>([]);
 
     useEffect(()=>{
         if(!roomId)
             return;
 
-        const token=localStorage.getItem("auth_token");
-        if(!token){
-            setAuthState("REJECTED");
-            return;
-        }
 
         const socket=io(SIGNALING_URL || "", {
-            auth: { token },
+            withCredentials: true,
         });
 
         socketRef.current=socket;
+        setSocketState(socket);
 
         socket.emit("join_room",{roomId});
 
@@ -100,6 +100,10 @@ setParticipants:Dispatch<SetStateAction<RoomParticipant[]>>
             );
         });
 
+        socket.on("chat_message",(message:ChatMessage)=>{
+            setMessages(prev => [...prev,message]);
+        });
+
         socket.on("room_closed",({reason})=>{
             console.warn("Room closed : ",reason);
 
@@ -116,15 +120,93 @@ setParticipants:Dispatch<SetStateAction<RoomParticipant[]>>
             console.log("[socket] disconnected");
         });
 
+        socket.on("connect_error",async(err)=>{
+            console.log("Socket connect error: ",err.message);
+
+            if(err.message==="TOKEN_EXPIRED"){
+                try{
+                    console.log("Refreshing token..");
+
+                    await handleTokenRefresh();
+                    
+                    console.log("Reconnect socket..");
+                    if(!socket.connected){
+                        socket.connect();
+                    }
+                    
+                }
+                catch(error){
+                    console.error("Refresh failed");
+
+                    clearAccessTokenExpiry();
+                    setAuthState("REJECTED");
+                }
+            }
+
+            if(err.message==="UNAUTHORIZED"){
+                setAuthState("REJECTED");
+            }
+        })
+
         return ()=>{
+            socket.off("chat_message");
             socket.disconnect();
             socketRef.current=null;
         }
     },[roomId]);
 
+
+    //----HEARTBEAT EVENT----//
+    useEffect(()=>{
+        
+        if(!socketState)
+            return;
+
+        const interval = setInterval(()=>{
+            socketState.emit("heartbeat");
+        }, 10000); // Send heartbeat every 10 seconds
+
+        return () => clearInterval(interval);
+    },[socketState]);
+
+
+    //when a access token refreshes then old socket connection breaks and new socket connection form using new access token 
+    useEffect(() => {
+        function handleTokenRefreshEvent() {
+            console.log("[socket] token refreshed → reconnecting");
+
+            const socket=socketRef.current;
+            if(!socket)
+                return;
+
+            socket.off("connect");
+            
+            socket.disconnect();
+
+            socket.connect();
+            socket.on("connect",()=>{
+                console.log("[socket] reconnected, rejoining room");
+
+                socket.emit("join_room",{
+                    roomId,
+                });
+            });
+        }
+
+        window.addEventListener("token_refreshed", handleTokenRefreshEvent);
+
+        return () => {
+            window.removeEventListener("token_refreshed", handleTokenRefreshEvent);
+        };
+    }, [roomId]);
+
+
+
     return {
         authState,
         role,
-        socket: socketRef.current
+        socket: socketState,
+        messages,
+        setMessages
     };
 }

@@ -8,7 +8,8 @@
     "api-gateway",
     "room-service",
     "signaling-service",
-    "turn-credential-service"
+    "turn-credential-service",
+    "media-recording-service"
   ],
   "scripts": {
     "dev": "echo \"Run services individually\""

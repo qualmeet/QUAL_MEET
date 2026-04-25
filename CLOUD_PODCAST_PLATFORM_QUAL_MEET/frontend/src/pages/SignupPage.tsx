@@ -1,8 +1,8 @@
 import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import type { RootState } from "../store";
-import SignupForm from "../components/SignupForm";
+import type { RootState } from "@/store";
+import SignupForm from "@/components/SignupForm";
 
 export default function SignupPage() {
   const isAuthenticated = useSelector(

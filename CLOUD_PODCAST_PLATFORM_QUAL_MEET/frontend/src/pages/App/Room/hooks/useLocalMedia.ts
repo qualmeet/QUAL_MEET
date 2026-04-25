@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect,useCallback } from "react";
+import { useState, useRef, useEffect,useCallback,useMemo} from "react";
 import { Socket } from "socket.io-client";
 
 export function useLocalMedia(
@@ -11,6 +11,7 @@ export function useLocalMedia(
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
 
+  const [cameraStreamState,setCameraStreamState]=useState<MediaStream | null>(null);
   const [micEnabled,setMicEnabled]=useState(true);
   const [camEnabled,setCamEnabled]=useState(true);
   const [isScreenSharing,setIsScreenSharing]=useState(false);
@@ -33,7 +34,10 @@ export function useLocalMedia(
 
         cameraStreamRef.current = stream;
         cameraVideoTrackRef.current=stream.getVideoTracks()[0];
+        
+        setCameraStreamState(stream);
         setReady(true);
+
       } catch {
         setError("Camera or microphone permission denied");
       }
@@ -43,8 +47,18 @@ export function useLocalMedia(
 
     return () => {
       cancelled = true;
-      cameraStreamRef.current?.getTracks().forEach(t => t.stop());
-      screenStreamRef.current?.getTracks().forEach(t => t.stop());
+      cameraStreamRef.current?.getTracks().forEach(t => {
+          t.stop();
+          cameraStreamRef.current?.removeTrack(t);
+      });
+      screenStreamRef.current?.getTracks().forEach(t => {
+          t.stop()
+          screenStreamRef.current?.removeTrack(t);
+      });
+
+      cameraStreamRef.current=null;
+      screenStreamRef.current=null;
+      cameraVideoTrackRef.current=null;
     };
   }, []);
 
@@ -74,6 +88,36 @@ export function useLocalMedia(
   },[]);
 
 
+  useEffect(()=>{
+
+    if(!socket)
+      return;
+
+    //success ->start sharing
+    const handleStarted=({socketId}:{socketId:string})=>{
+        if(socketId===socket.id){
+          setIsScreenSharing(true);
+        }
+    };
+
+    //failure -> cleanup
+    const handleDenied=()=>{
+      screenStreamRef.current?.getTracks().forEach(t=>t.stop());
+
+      screenStreamRef.current=null;
+      setIsScreenSharing(false);
+    }
+
+    socket.on("screen_share_started",handleStarted);
+    socket.on("screen_share_denied",handleDenied);
+
+    return()=>{
+      socket.off("screen_share_started",handleStarted);
+      socket.off("screen_share_denied",handleDenied);
+    }
+
+  },[socket]);
+
   const startScreenShare=useCallback(async()=>{
 
       if(isScreenSharing)
@@ -89,10 +133,19 @@ export function useLocalMedia(
         socket?.emit("screen_share_start");
         setIsScreenSharing(true);
 
-        //Auto stop when user clicks "stop sharing"
+        //Auto stop when user clicks "stop sharing" on chrome pop up's
         const [screenTrack]=screenStream.getVideoTracks();
+
         screenTrack.onended=()=>{
-          stopScreenShare();
+            console.log("Screen share ended by browser");
+
+            screenStreamRef.current?.getTracks().forEach(t=>t.stop());
+            screenStreamRef.current=null;
+
+            setIsScreenSharing(false);
+
+            socket?.emit("screen_share_stop");
+           
         };
 
         console.log("Started sharing screen");
@@ -119,16 +172,21 @@ export function useLocalMedia(
   },[isScreenSharing]);
 
 
-
-  const activeVideoTrack=
-        isScreenSharing && screenStreamRef.current
-        ? screenStreamRef.current.getVideoTracks()[0]
-        : cameraVideoTrackRef.current;
+  //useMemo reduces unncesarry recalculations 
+  const activeVideoTrack=useMemo(()=>{
+        if(isScreenSharing && screenStreamRef.current){
+              return screenStreamRef.current.getVideoTracks()[0];
+        }
+         
+        return  cameraVideoTrackRef.current;
+  },[isScreenSharing]);
+        
+       
 
 
 
   return {
-    cameraStream: cameraStreamRef.current,
+    cameraStream: cameraStreamState,
 
     //track that is being sent to other peers
     activeVideoTrack,
@@ -147,3 +205,6 @@ export function useLocalMedia(
     stopScreenShare,
   };
 }
+
+
+

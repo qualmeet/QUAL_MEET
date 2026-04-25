@@ -1,14 +1,14 @@
 import express from "express";
 import { authenticate } from "./middlewares/auth";
-import { authProxy,roomProxy,turnProxy} from "./routes/proxy";
+import { authProxy,mediaProxy,roomProxy,turnProxy} from "./routes/proxy";
 import cors from "cors";
-//import cookieParser from "cookie-parser";
+import cookieParser from "cookie-parser";
 
 
 const app = express();
 
 app.use(express.json());
-//app.use(cookieParser());
+app.use(cookieParser());
 
 
 app.use(
@@ -16,7 +16,7 @@ app.use(
     origin: "http://localhost:5173",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+    allowedHeaders: ["Content-Type", "Authorization","x-csrf-token"]
   })
 );
 
@@ -42,6 +42,8 @@ app.use("/api/auth",authProxy);
 app.use("/api/rooms",authenticate,roomProxy);
 
 app.use("/api/turn", authenticate, turnProxy);
+
+app.use("/api/media",authenticate,mediaProxy);
 
 
 export default app;

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { createRoom } from "../../../api/rooms";
+import { createRoom } from "@/api/rooms";
 
 export default function CreateRoomCard(){
 
@@ -17,15 +17,17 @@ export default function CreateRoomCard(){
     }
 
     return (
-        <div className="border rounded-lg p-6 space-y-4">
-            <h3 className="text-lg font-semibold">Create a Room</h3>
-            <p className="text-sm text-gray-500">
-                Start a new meeting instantly.
+    <div className="h-full flex flex-col justify-between p-8">
+        <div>
+            <span className="text-xs font-mono text-green-500 tracking-widest uppercase"> Start</span>
+            <h3 className="text-3xl font-bold mt-2">New Room</h3>
+            <p className="text-gray-500 mt-4 text-sm leading-relaxed">
+            Initiate a secure, end-to-end encrypted session with cloud recording enabled.
             </p>
-
-            <button onClick={handleCreate}>
-                Create Room
-            </button>
         </div>
-    );
+        <button onClick={handleCreate} className="w-full py-5 rounded-2xl bg-white text-black font-black uppercase text-xs tracking-widest hover:invert transition-all">
+            Generate Room
+        </button>
+</div>
+  );
 }
