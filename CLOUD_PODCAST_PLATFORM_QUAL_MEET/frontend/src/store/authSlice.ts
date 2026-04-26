@@ -1,5 +1,11 @@
 import {createSlice,PayloadAction} from "@reduxjs/toolkit";
-import type {UserDTO} from "@qualmeet/shared";
+
+export interface UserDTO {
+  id: string;
+  email: string;
+  fullName: string;
+}
+
 
 interface AuthState{
     user:UserDTO | null;
