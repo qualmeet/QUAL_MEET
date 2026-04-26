@@ -35,7 +35,7 @@ interface GuestLeftResponse{
 type LeaveRoomResponse=HostLeftResponse | GuestLeftResponse;
 
 export async function createRoom(): Promise<CreateRoomResponse>{
-    return apiRequest<CreateRoomResponse>("/api/rooms",{
+    return apiRequest<CreateRoomResponse>("/api/rooms/create",{
         method:"POST",
         auth:true
     });
