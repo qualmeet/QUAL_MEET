@@ -3,7 +3,7 @@ import type { Options } from "http-proxy-middleware";
 import type { ClientRequest,IncomingMessage } from "http";
 
 const authProxyOptions: Options = {
-  target: "http://localhost:4001/auth",
+  target: process.env.AUTH_SERVICE_URL,
   changeOrigin: true,
 
   on: {
@@ -28,7 +28,7 @@ export const authProxy = createProxyMiddleware(authProxyOptions);
 
 //room-service proxy - private route(jwt required)
 export const roomProxy=createProxyMiddleware({
-    target:"http://localhost:4002/rooms",
+    target:process.env.ROOM_SERVICE_URL,
     changeOrigin:true,
 
     on:{
@@ -49,7 +49,7 @@ export const roomProxy=createProxyMiddleware({
 
 // turn-credential-service proxy (private route)
 export const turnProxy = createProxyMiddleware({
-  target: "http://localhost:4004",
+  target: process.env.TURN_CREDENTIAL_URL,
   changeOrigin: true,
 
   on: {
@@ -68,7 +68,7 @@ export const turnProxy = createProxyMiddleware({
 
 
 export const mediaProxy=createProxyMiddleware({
-  target:"http://localhost:4005/media",
+  target:process.env.MEDIA_RECORDING_URL,
   changeOrigin:true,
 
    on: {
