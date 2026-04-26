@@ -134,6 +134,10 @@ const config = {
         "fromEnvVar": null,
         "value": "windows",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "debian-openssl-3.0.x"
       }
     ],
     "previewFeatures": [],
@@ -160,8 +164,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../prisma-client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id           String   @id @default(uuid())\n  email        String   @unique\n  passwordHash String\n  fullName     String\n  createdAt    DateTime @default(now())\n\n  @@map(\"users\")\n}\n",
-  "inlineSchemaHash": "0ff8560711092f11e4e09bac3fc5bc51b95cb55ad76a5e3f930a4878641b84c1",
+  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  binaryTargets = [\"native\", \"debian-openssl-3.0.x\"]\n  output        = \"../prisma-client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id           String   @id @default(uuid())\n  email        String   @unique\n  passwordHash String\n  fullName     String\n  createdAt    DateTime @default(now())\n\n  @@map(\"users\")\n}\n",
+  "inlineSchemaHash": "27cc4adf01bc4da4f5c3c8e76ddf63986d6dfefed3967bfebb6bbea8c1503668",
   "copyEngine": true
 }
 config.dirname = '/'
