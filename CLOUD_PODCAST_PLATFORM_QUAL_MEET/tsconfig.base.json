@@ -4,13 +4,6 @@
     "module": "ESNext",
     "strict": true,
 
-    "baseUrl": ".",
-    "paths": {
-      "@shared/*": ["shared/*"]
-    },
-
-    "ignoreDeprecations": "5.0",
-
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
