@@ -64,23 +64,25 @@ export async function login(req:Request,res:Response){
 
         const csrfToken=crypto.randomBytes(32).toString("hex"); // 64 char random string
 
+        const isProd = process.env.NODE_ENV === "production";
+
         res.cookie("csrf_token",csrfToken,{
-            secure:process.env.NODE_ENV==="production",
-            sameSite:"lax",
+            secure: isProd,                     
+            sameSite: isProd ? "none" : "lax", 
             httpOnly:false, // accessible by client-side js
         });
 
         res.cookie("access_token", accessToken, {
             httpOnly:true,
-            secure:process.env.NODE_ENV==="production",
-            sameSite:"none",
+            secure: isProd,                     
+            sameSite: isProd ? "none" : "lax", 
             maxAge:15*60*1000, //15 mins
         });
 
         res.cookie("refresh_token", refreshToken, {
             httpOnly:true,
-            secure:process.env.NODE_ENV==="production",
-            sameSite:"none",
+            secure: isProd,                     
+            sameSite: isProd ? "none" : "lax", 
             path:"/api/auth/refresh", // refresh token only sent to refresh endpoint
             maxAge:7*24*60*60*1000, //7 days
         });
@@ -125,11 +127,13 @@ export async function refresh(req:Request,res:Response){
 
         const {accessToken}=await refreshAccessToken(refreshToken);
 
+        const isProd = process.env.NODE_ENV === "production";
+
         //set new access token in cookie
         res.cookie("access_token",accessToken,{
             httpOnly:true,
-            secure:process.env.NODE_ENV==="production",
-            sameSite:"none",
+            secure: isProd,                     
+            sameSite: isProd ? "none" : "lax", 
             maxAge:15*60*1000, //15 mins
         });
 
@@ -159,16 +163,18 @@ export async function refresh(req:Request,res:Response){
 export async function logout(req:Request,res:Response){
     try{
 
+        const isProd = process.env.NODE_ENV === "production";
+
         res.clearCookie("access_token",{
             httpOnly:true,
-            secure:process.env.NODE_ENV==="production",
-            sameSite:"none",
+            secure: isProd,                   
+            sameSite: isProd ? "none" : "lax",
         });
 
         res.clearCookie("refresh_token",{
             httpOnly:true,
-            secure:process.env.NODE_ENV==="production",
-            sameSite:"none",
+            secure: isProd,                     
+            sameSite: isProd ? "none" : "lax", 
             path:"/api/auth/refresh",
         });
 
