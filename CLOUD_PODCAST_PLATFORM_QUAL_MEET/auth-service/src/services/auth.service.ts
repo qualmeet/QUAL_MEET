@@ -1,4 +1,4 @@
-import brcypt from "bcrypt";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import {prisma} from "../db/prisma";
 import { SignupRequestDTO,LoginRequestDTO } from "../dto/auth.dto";
@@ -29,7 +29,7 @@ export async function signupUser(data:SignupRequestDTO){
     }
 
     //hash the passowrd to store in db
-    const passwordHash=await brcypt.hash(password,SALT_ROUNDS);
+    const passwordHash=await bcrypt.hash(password,SALT_ROUNDS);
 
     //create user in db
     const user=await prisma.user.create({
@@ -65,7 +65,7 @@ export async function loginUser(data:LoginRequestDTO){
 
 
     //compare password
-    const isValid=await brcypt.compare(password,user.passwordHash);
+    const isValid=await bcrypt.compare(password,user.passwordHash);
 
     if(!isValid){
         throw new AppError("Invalid email or password",401);
@@ -93,7 +93,12 @@ export async function loginUser(data:LoginRequestDTO){
     return {
         accessToken,
         refreshToken,
-        user
+        user: {
+            id: user.id,
+            email: user.email,
+            fullName: user.fullName,
+            createdAt: user.createdAt,
+        }
     };
 }
 
