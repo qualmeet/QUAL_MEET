@@ -276,7 +276,7 @@ export async function createServer() {
                 const userId = socket.data.user.userId;
 
                 const response = await fetch(
-                    `${process.env.ROOM_SERVICE_URL}/rooms/${roomId}/authorize`,
+                    `${process.env.ROOM_SERVICE_URL}/${roomId}/authorize`,
                     {
                         method: "POST",
                         headers: {

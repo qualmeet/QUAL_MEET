@@ -11,7 +11,7 @@ import { generateTurnCredentials } from "../utils/turn";
 
 export async function getIceServerForUser(roomId:string,userId:string){
 
-    const response=await fetch(`${ROOM_SERVICE_BASE_URL}/rooms/${roomId}/authorize`,
+    const response=await fetch(`${ROOM_SERVICE_BASE_URL}/${roomId}/authorize`,
         {
             method:"POST",
             headers:{

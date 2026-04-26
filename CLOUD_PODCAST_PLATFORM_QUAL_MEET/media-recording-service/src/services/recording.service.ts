@@ -36,7 +36,7 @@ export async function initRecording(input:InitRecordingInput) {
 
     //step 1 :verifying user is in the room 
     const response = await fetch(
-        `${process.env.ROOM_SERVICE_URL}/rooms/${roomId}/authorize`,
+        `${process.env.ROOM_SERVICE_URL}/${roomId}/authorize`,
         {
             method: "POST",
             headers: {
