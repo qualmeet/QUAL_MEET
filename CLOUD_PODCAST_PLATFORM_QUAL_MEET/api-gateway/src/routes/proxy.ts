@@ -31,6 +31,7 @@ export const roomProxy=createProxyMiddleware({
     target:process.env.ROOM_SERVICE_URL,
     changeOrigin:true,
 
+
     on:{
       proxyReq:(proxyReq:ClientRequest,req:IncomingMessage)=>{
         const body=(req as any).body;
@@ -70,6 +71,7 @@ export const turnProxy = createProxyMiddleware({
 export const mediaProxy=createProxyMiddleware({
   target:process.env.MEDIA_RECORDING_URL,
   changeOrigin:true,
+
 
    on: {
     proxyReq: (proxyReq: ClientRequest, req: IncomingMessage) => {

@@ -13,7 +13,7 @@ export function createApp(){
         });
     });
 
-    app.use("/rooms",roomRoutes);
+    app.use("/",roomRoutes);
 
     return app;
 

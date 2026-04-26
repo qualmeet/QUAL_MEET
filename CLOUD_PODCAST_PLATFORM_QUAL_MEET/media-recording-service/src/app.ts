@@ -15,7 +15,7 @@ export function createApp(){
         });
     });
 
-    app.use("/media",recordingRoutes);
+    app.use("/",recordingRoutes);
 
     return app;
 }
