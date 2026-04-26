@@ -5,11 +5,15 @@ import { SignupRequestDTO,LoginRequestDTO } from "../dto/auth.dto";
 import { UserAlreadyExistsError } from "../errors/AuthErrors";
 import { getPrivateKey,getPublicKey } from "../utils/jwt";
 import { AppError } from "../errors/AppError";
-import { JwtPayload } from "@qualmeet/shared";
-import { id } from "zod/v4/locales";
 
 const SALT_ROUNDS=10;
 
+
+export interface JwtPayload {
+  userId: string;
+  email: string;
+  fullName: string;
+}
 
 //signup business logic
 export async function signupUser(data:SignupRequestDTO){
@@ -129,6 +133,7 @@ export async function refreshAccessToken(refreshToken:string){
 }
 
 type JwtPayloadWithExp=JwtPayload & {exp:number};
+
 export async function getCurrentUser(accessToken:string){
     try{
         const decoded=jwt.verify(accessToken,getPublicKey(),{

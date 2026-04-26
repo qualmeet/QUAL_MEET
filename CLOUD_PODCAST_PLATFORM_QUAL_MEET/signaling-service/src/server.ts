@@ -2,7 +2,6 @@ import http from "http";
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import { env } from "./config/env";
-import { JwtPayload } from "@qualmeet/shared";
 import { isUserInRoom,getRoomUsers,updateUser,getUser, addUserToRoomAtomic, setHeartbeat, cleanupStaleUsers, startScreenShareLock, stopScreenShareLock } from "./services/roomStore";
 import { removeUserFromRoom,isRoomEmpty,deleteRoom } from "./services/roomStore";
 import { initPubSub,publish,subscribe } from "./services/pubsub";
@@ -16,6 +15,12 @@ import { redis } from "./config/redis";
 //     console.error("[redis] ping failed:", err);
 //   }
 // })();
+
+export interface JwtPayload {
+  userId: string;
+  email: string;
+  fullName: string;
+}
 
 function parseCookies(cookieHeader?:string){
     if(!cookieHeader){

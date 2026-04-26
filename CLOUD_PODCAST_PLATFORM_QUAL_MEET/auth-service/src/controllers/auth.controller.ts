@@ -2,8 +2,23 @@ import {Request,Response} from "express";
 import { SignupRequestDTO,LoginRequestDTO } from "../dto/auth.dto";
 import {signupUser,loginUser,refreshAccessToken, getCurrentUser} from "../services/auth.service";
 import { AppError } from "../errors/AppError";
-import {SignupResponse,LoginResponse} from "@qualmeet/shared";
 import crypto from "crypto";
+
+
+export interface UserDTO {
+  id: string;
+  email: string;
+  fullName: string;
+}
+
+export interface SignupResponse {
+  user: UserDTO;
+}
+
+export interface LoginResponse {
+  user: UserDTO;
+  accessTokenExpiry:number; // in ms
+}
 
 
 // POST /auth/signup

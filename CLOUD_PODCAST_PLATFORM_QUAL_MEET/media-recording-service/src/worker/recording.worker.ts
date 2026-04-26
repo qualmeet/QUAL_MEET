@@ -13,12 +13,10 @@ import util from "util";
 const execAsync=util.promisify(exec);
 
 
-const connection=new Redis({
-    host:process.env.REDIS_HOST || "127.0.0.1",
-    port:Number(process.env.REDIS_PORT) || 6379,
-
+const connection=new Redis(process.env.REDIS_URL!,{
     maxRetriesPerRequest:null, 
 });
+
 
 export const worker=new Worker(
     "recording-processing",
