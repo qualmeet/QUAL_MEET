@@ -1,5 +1,4 @@
 import { apiRequest, getCSRFToken} from "./client";
-import type { LoginResponse,SignupResponse,UserDTO} from "@qualmeet/shared";
 const API_BASE_URL=import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000";
 
 
@@ -17,6 +16,28 @@ interface LoginInput{
 interface MeResponse{
     user:UserDTO;
     accessTokenExpiry:number;
+}
+
+export interface UserDTO {
+  id: string;
+  email: string;
+  fullName: string;
+}
+
+/**
+ * Auth signup response
+ */
+
+export interface SignupResponse {
+  user: UserDTO;
+}
+
+/**
+ * Auth login response
+ */
+export interface LoginResponse {
+  user: UserDTO;
+  accessTokenExpiry:number; // in ms
 }
 
 
