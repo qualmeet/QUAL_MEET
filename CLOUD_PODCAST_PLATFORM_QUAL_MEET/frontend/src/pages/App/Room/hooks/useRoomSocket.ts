@@ -3,15 +3,18 @@ import {io,Socket} from "socket.io-client";
 import { RoomRole,JoinSuccessPayload, RoomParticipant } from "../types";
 import {handleTokenRefresh} from "@/api/client";
 import { clearAccessTokenExpiry } from "@/api/client";
+import { ChatMessage } from "../components/ChatPanel";
 
 type AuthState="PENDING" | "AUTHORIZED" | "REJECTED";
 
-const SIGNALING_URL=import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4003";
+const SIGNALING_URL=import.meta.env.VITE_SIGNALING_URL ?? "http://localhost:4003";
 
 interface UseRoomSocketResult {
   authState: AuthState;
   role: RoomRole | null;
   socket: Socket | null;
+  messages:ChatMessage[];
+  setMessages:React.Dispatch<React.SetStateAction<ChatMessage[]>>;
 }
 
 
