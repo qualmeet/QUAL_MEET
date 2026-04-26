@@ -164,6 +164,10 @@ const config = {
         "fromEnvVar": null,
         "value": "windows",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "debian-openssl-3.0.x"
       }
     ],
     "previewFeatures": [],
@@ -190,8 +194,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../prisma-client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel RoomRecording {\n  id           String   @id @default(uuid())\n  roomId       String\n  userId       String\n  finalRoomUrl String\n  createdAt    DateTime @default(now())\n\n  @@unique([roomId, userId])\n  @@index([userId])\n  @@map(\"room_recordings\")\n}\n\nmodel Recording {\n  id        String          @id @default(uuid())\n  roomId    String\n  userId    String\n  status    RecordingStatus @default(RECORDING)\n  createdAt DateTime        @default(now())\n  finalUrl  String?\n\n  chunks RecordingChunk[]\n\n  @@map(\"recordings\")\n}\n\nmodel RecordingChunk {\n  id          String  @id @default(uuid())\n  recordingId String\n  chunkIndex  Int\n  uploaded    Boolean @default(false)\n  fileUrl     String?\n\n  recording Recording @relation(fields: [recordingId], references: [id])\n\n  @@unique([recordingId, chunkIndex])\n  @@map(\"recording_chunks\")\n}\n\nenum RecordingStatus {\n  RECORDING\n  PROCESSING\n  COMPLETED\n  FAILED\n}\n",
-  "inlineSchemaHash": "9a2c51153c28a73fd07cf9029e91d26bb6b7f1f1a94aedad5e593831b415d507",
+  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  binaryTargets = [\"native\", \"debian-openssl-3.0.x\"]\n  output        = \"../prisma-client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel RoomRecording {\n  id           String   @id @default(uuid())\n  roomId       String\n  userId       String\n  finalRoomUrl String\n  createdAt    DateTime @default(now())\n\n  @@unique([roomId, userId])\n  @@index([userId])\n  @@map(\"room_recordings\")\n}\n\nmodel Recording {\n  id        String          @id @default(uuid())\n  roomId    String\n  userId    String\n  status    RecordingStatus @default(RECORDING)\n  createdAt DateTime        @default(now())\n  finalUrl  String?\n\n  chunks RecordingChunk[]\n\n  @@map(\"recordings\")\n}\n\nmodel RecordingChunk {\n  id          String  @id @default(uuid())\n  recordingId String\n  chunkIndex  Int\n  uploaded    Boolean @default(false)\n  fileUrl     String?\n\n  recording Recording @relation(fields: [recordingId], references: [id])\n\n  @@unique([recordingId, chunkIndex])\n  @@map(\"recording_chunks\")\n}\n\nenum RecordingStatus {\n  RECORDING\n  PROCESSING\n  COMPLETED\n  FAILED\n}\n",
+  "inlineSchemaHash": "10c5a91fbf6d28810a32f1a33b2b363dca0f5a45e2fb28f19a98d524c2c39203",
   "copyEngine": true
 }
 
@@ -231,6 +235,10 @@ Object.assign(exports, Prisma)
 // file annotations for bundling tools to include these files
 path.join(__dirname, "query_engine-windows.dll.node");
 path.join(process.cwd(), "prisma-client/query_engine-windows.dll.node")
+
+// file annotations for bundling tools to include these files
+path.join(__dirname, "libquery_engine-debian-openssl-3.0.x.so.node");
+path.join(process.cwd(), "prisma-client/libquery_engine-debian-openssl-3.0.x.so.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
 path.join(process.cwd(), "prisma-client/schema.prisma")
