@@ -73,14 +73,14 @@ export async function login(req:Request,res:Response){
         res.cookie("access_token", accessToken, {
             httpOnly:true,
             secure:process.env.NODE_ENV==="production",
-            sameSite:"lax",
+            sameSite:"none",
             maxAge:15*60*1000, //15 mins
         });
 
         res.cookie("refresh_token", refreshToken, {
             httpOnly:true,
             secure:process.env.NODE_ENV==="production",
-            sameSite:"lax",
+            sameSite:"none",
             path:"/api/auth/refresh", // refresh token only sent to refresh endpoint
             maxAge:7*24*60*60*1000, //7 days
         });
@@ -129,7 +129,7 @@ export async function refresh(req:Request,res:Response){
         res.cookie("access_token",accessToken,{
             httpOnly:true,
             secure:process.env.NODE_ENV==="production",
-            sameSite:"lax",
+            sameSite:"none",
             maxAge:15*60*1000, //15 mins
         });
 
@@ -162,13 +162,13 @@ export async function logout(req:Request,res:Response){
         res.clearCookie("access_token",{
             httpOnly:true,
             secure:process.env.NODE_ENV==="production",
-            sameSite:"lax",
+            sameSite:"none",
         });
 
         res.clearCookie("refresh_token",{
             httpOnly:true,
             secure:process.env.NODE_ENV==="production",
-            sameSite:"lax",
+            sameSite:"none",
             path:"/api/auth/refresh",
         });
 
