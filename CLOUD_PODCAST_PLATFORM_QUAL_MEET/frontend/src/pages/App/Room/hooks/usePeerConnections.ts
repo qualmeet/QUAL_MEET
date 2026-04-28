@@ -252,14 +252,6 @@ export function usePeerConnection(
             };
 
 
-            //this is for non initator peer(not sending offer,but receivng the offer from other peer) if ice candidates reach it before it create peer connection object so we store them in queue and later add it to peer connection object 
-            const queued=pendingIceRef.current.get(remoteSocketId);
-            if(queued){
-                console.log("Applying queued Ice Candidates : ",queued.length);
-                queued.forEach(c=>pc.addIceCandidate(new RTCIceCandidate(c)));
-                pendingIceRef.current.delete(remoteSocketId);
-            }
-
 
             if(isInitiator){
 
@@ -356,6 +348,25 @@ export function usePeerConnection(
                 }
 
                 await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+                
+                console.log("LOG:Remote Descroption Set");
+                
+                const queuedCandidates=pendingIceRef.current.get(from);
+                if(queuedCandidates){
+                    console.log(`LOG : Applying ${queuedCandidates.length} queueud candidates`);
+
+                    for(const candidate of queuedCandidates){
+                        try{
+                            await pc.addIceCandidate(new RTCIceCandidate(candidate));
+                            console.log("ICE state now:", pc.iceConnectionState);
+                        }
+                        catch(err){
+                            console.error("Error applying queued ICE ",err);
+                        }
+                    }
+                    pendingIceRef.current.delete(from);
+                }
+                
                 const answer=await pc.createAnswer();
                 await pc.setLocalDescription(answer);
 
@@ -379,25 +390,50 @@ export function usePeerConnection(
             if(!pc)
                 return;
 
-            await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+            try {
+                await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+                console.log("Answer received and Remote Description set for:", from);
 
-
-            console.log("Answer received  ",sdp);
+                // --- DRAIN QUEUE FOR HOST SIDE ---
+                const queuedCandidates = pendingIceRef.current.get(from);
+                if (queuedCandidates) {
+                    console.log(`LOG: Applying ${queuedCandidates.length} queued candidates to Host side`);
+                    for (const candidate of queuedCandidates) {
+                        try {
+                            await pc.addIceCandidate(new RTCIceCandidate(candidate));
+                            console.log("ICE state now:", pc.iceConnectionState);
+                        } catch (e) {
+                            console.error("Error adding queued ICE to Host:", e);
+                        }
+                    }
+                    pendingIceRef.current.delete(from);
+                }
+            } catch (err) {
+                console.error("Error handling webrtc_answer:", err);
+            }
         });
 
-        socket.on("webrtc_ice_candidate",({from,candidate})=>{
+        socket.on("webrtc_ice_candidate",async({from,candidate})=>{
 
 
             console.log("ICE CANDIDATE received ", candidate);
             const pc=peersRef.current.get(from);
 
-            if(!pc){
+            if(!pc || !pc.remoteDescription){
+                console.log("Queueing ICE candidates ")
                 const queue=pendingIceRef.current.get(from) ?? [];
                 queue.push(candidate);
                 pendingIceRef.current.set(from,queue);
                 return;
             }
-            pc.addIceCandidate(new RTCIceCandidate(candidate));
+            try{
+                await pc.addIceCandidate(new RTCIceCandidate(candidate));
+                console.log("ICE Candidate added directly");
+                console.log("ICE state now:", pc.iceConnectionState);
+            }
+            catch(error){
+                console.error("Error adding ICE candidate",error);
+            }
         });
 
         socket.on("user_left",({socketId})=>{
