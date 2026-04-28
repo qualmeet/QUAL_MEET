@@ -36,7 +36,20 @@ function parseCookies(cookieHeader?:string){
 }
 
 export async function createServer() {
-    const httpServer = http.createServer();
+    const httpServer = http.createServer((req, res) => {
+        if (req.method === "GET" && req.url === "/health") {
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({
+                service: "signaling-service",
+                status: "ok"
+            }));
+            return;
+        }
+
+        // Important: for all other requests
+        res.writeHead(404);
+        res.end();
+    });
 
     const io = new Server(httpServer, {
         cors: {
