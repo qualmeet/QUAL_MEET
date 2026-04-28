@@ -324,7 +324,17 @@ export function usePeerConnection(
 
             console.log(`Offer received from=> ${from} sdp =>${sdp}`);
 
-            if (!rtcConfigRef.current) return;
+            let checks=0;
+            while (!rtcConfigRef.current && checks <20){
+                console.log(`ICE config not ready, waiting...(attempt${checks+1})`);
+                await new Promise(resolve=>setTimeout(resolve,100));
+                checks++;
+            }
+
+            if(!rtcConfigRef.current){
+                console.log("Critical :ICE config failed to load in time for offer");
+                return;
+            }
 
             let pc: RTCPeerConnection | null = peersRef.current.get(from) ?? null;
 
