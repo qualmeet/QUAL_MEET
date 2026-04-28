@@ -36,6 +36,7 @@ setParticipants:Dispatch<SetStateAction<RoomParticipant[]>>
 
         const socket=io(SIGNALING_URL || "", {
             withCredentials: true,
+            transports:["websocket"],
         });
 
         socketRef.current=socket;
@@ -182,18 +183,17 @@ setParticipants:Dispatch<SetStateAction<RoomParticipant[]>>
             if(!socket)
                 return;
 
-            socket.off("connect");
-            
-            socket.disconnect();
-
-            socket.connect();
-            socket.on("connect",()=>{
-                console.log("[socket] reconnected, rejoining room");
-
-                socket.emit("join_room",{
-                    roomId,
-                });
+            if (!socket.connected) { 
+                console.log("[socket] Reconnecting with fresh token...");
+                socket.connect();
+                socket.once("connect", () => {
+                    socket.emit("join_room", { roomId });
             });
+            } else {
+                console.log("[socket] Token refreshed but socket still alive. Staying connected.");
+            }
+            
+            
         }
 
         window.addEventListener("token_refreshed", handleTokenRefreshEvent);
@@ -208,7 +208,7 @@ setParticipants:Dispatch<SetStateAction<RoomParticipant[]>>
     return {
         authState,
         role,
-        socket: socketState,
+        socket: authState==="AUTHORIZED" ? socketState : null,
         messages,
         setMessages
     };
