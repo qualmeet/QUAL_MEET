@@ -13,6 +13,8 @@ export async function createRoomController(
       return res.status(401).json({ error: "Missing user identity" });
     }
 
+    console.log("HEADERS:", req.headers);
+
     const body = req.body as CreateRoomRequestDTO;
 
     const room = await createRoom({
